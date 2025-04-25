@@ -10,20 +10,22 @@ const SPECIALTIES = [
 ];
 
 export default function FilterPanel({ filters, onChange, onClear }) {
+  const { consultation, specialties, sort } = filters;
   const [openSort, setOpenSort] = useState(true);
   const [openFilters, setOpenFilters] = useState(true);
-  const [specSearch, setSpecSearch] = useState('');
+  const [searchSpec, setSearchSpec] = useState('');
 
-  const visibleSpecs = SPECIALTIES.filter(s =>
-    s.toLowerCase().includes(specSearch.toLowerCase())
+  // filter the specialty list by the in-panel search box
+  const visibleSpecs = SPECIALTIES.filter(spec =>
+    spec.toLowerCase().includes(searchSpec.toLowerCase())
   );
 
   return (
     <>
       {/* Sort Panel */}
       <div className="panel">
-        <div className="panel-header" onClick={()=>setOpenSort(o=>!o)}>
-          <span>Sort by</span>
+        <div className="panel-header" onClick={() => setOpenSort(o => !o)}>
+          <span data-testid="filter-header-sort">Sort by</span>
           <span className="toggle">{openSort ? '▲' : '▼'}</span>
         </div>
         {openSort && (
@@ -31,18 +33,24 @@ export default function FilterPanel({ filters, onChange, onClear }) {
             <label>
               <input
                 data-testid="sort-fees"
-                type="radio" name="sort"
-                checked={filters.sort==='fees'}
-                onChange={()=> onChange(f=>({...f, sort:'fees'}))}
+                type="radio"
+                name="sort"
+                checked={sort === 'fees'}
+                onChange={() =>
+                  onChange(f => ({ ...f, sort: 'fees' }))
+                }
               />
               Price: Low-High
             </label>
             <label>
               <input
                 data-testid="sort-experience"
-                type="radio" name="sort"
-                checked={filters.sort==='experience'}
-                onChange={()=> onChange(f=>({...f, sort:'experience'}))}
+                type="radio"
+                name="sort"
+                checked={sort === 'experience'}
+                onChange={() =>
+                  onChange(f => ({ ...f, sort: 'experience' }))
+                }
               />
               Experience: Most Experience first
             </label>
@@ -54,36 +62,44 @@ export default function FilterPanel({ filters, onChange, onClear }) {
       <div className="panel">
         <div className="panel-header">
           <span>Filters</span>
-          <button
-            className="clear-all"
-            onClick={onClear}
-          >Clear All</button>
+          <button className="clear-all" onClick={onClear}>
+            Clear All
+          </button>
         </div>
         {openFilters && (
           <div className="panel-body">
             {/* Specialities */}
             <div className="filter-group">
-              <div className="filter-title" data-testid="filter-header-speciality">
+              <div
+                className="filter-title"
+                data-testid="filter-header-speciality"
+              >
                 Specialities
               </div>
               <input
                 type="text"
                 className="filter-search"
                 placeholder="Search..."
-                value={specSearch}
-                onChange={e=>setSpecSearch(e.target.value)}
+                value={searchSpec}
+                onChange={e => setSearchSpec(e.target.value)}
               />
               {visibleSpecs.map(spec => (
                 <label key={spec}>
                   <input
-                    data-testid={'filter-specialty-'+spec.replace(/\s|\/+/g,'-')}
+                    data-testid={`filter-specialty-${spec.replace(
+                      /\s|\/+/g,
+                      '-'
+                    )}`}
                     type="checkbox"
-                    checked={filters.specialties.includes(spec)}
-                    onChange={()=>{
-                      const next = filters.specialties.includes(spec)
-                        ? filters.specialties.filter(s=>s!==spec)
-                        : [...filters.specialties, spec];
-                      onChange(f=>({...f, specialties: next}));
+                    checked={specialties.includes(spec)}
+                    onChange={() => {
+                      const next = specialties.includes(spec)
+                        ? specialties.filter(s => s !== spec)
+                        : [...specialties, spec];
+                      onChange(f => ({
+                        ...f,
+                        specialties: next
+                      }));
                     }}
                   />
                   {spec}
@@ -93,32 +109,50 @@ export default function FilterPanel({ filters, onChange, onClear }) {
 
             {/* Consultation Mode */}
             <div className="filter-group">
-              <div className="filter-title" data-testid="filter-header-moc">
+              <div
+                className="filter-title"
+                data-testid="filter-header-moc"
+              >
                 Mode of consultation
               </div>
               <label>
                 <input
                   data-testid="filter-video-consult"
-                  type="radio" name="moc"
-                  checked={filters.consultation==='Video Consult'}
-                  onChange={()=>onChange(f=>({...f, consultation:'Video Consult'}))}
+                  type="radio"
+                  name="moc"
+                  checked={consultation === 'Video Consult'}
+                  onChange={() =>
+                    onChange(f => ({
+                      ...f,
+                      consultation: 'Video Consult'
+                    }))
+                  }
                 />
                 Video Consultation
               </label>
               <label>
                 <input
                   data-testid="filter-in-clinic"
-                  type="radio" name="moc"
-                  checked={filters.consultation==='In Clinic'}
-                  onChange={()=>onChange(f=>({...f, consultation:'In Clinic'}))}
+                  type="radio"
+                  name="moc"
+                  checked={consultation === 'In Clinic'}
+                  onChange={() =>
+                    onChange(f => ({
+                      ...f,
+                      consultation: 'In Clinic'
+                    }))
+                  }
                 />
-                In‐clinic Consultation
+                In-clinic Consultation
               </label>
               <label>
                 <input
-                  type="radio" name="moc"
-                  checked={filters.consultation==='' }
-                  onChange={()=>onChange(f=>({...f, consultation:''}))}
+                  type="radio"
+                  name="moc"
+                  checked={consultation === ''}
+                  onChange={() =>
+                    onChange(f => ({ ...f, consultation: '' }))
+                  }
                 />
                 All
               </label>
